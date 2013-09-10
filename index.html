@@ -10,17 +10,32 @@
       $(document).ready(function(){
         var $body = $('body');
         $body.html('');
-
-        var index = streams.home.length - 1;
-        while(index >= 0){
-          var tweet = streams.home[index];
+        
+        var displayTweets = function(tweet) {
           var $tweet = $('<div></div>');
-          $tweet.text('@' + tweet.user + ': ' + tweet.message);
+          var tweetTime = tweet.created_at.toTimeString().substr(0,8);  //Create timestamp
+
+          $tweet.text('@' + tweet.user + ' (' + tweetTime + ')' + ': ' + tweet.message);
           $tweet.appendTo($body);
-          index -= 1;
+        };
+
+        var cycleTweets = function() {
+          var array = streams.home
+          var index = array.length - 1;
+          $body.text('');
+          while(index >= 0){
+            var tweet = streams.home[index];
+            displayTweets(tweet);
+            index -= 1;
+          }
+          setTimeout(cycleTweets, 1000);
         }
 
+        cycleTweets();
+        
       });
+
+
 
     </script>
   </body>
