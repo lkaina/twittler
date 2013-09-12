@@ -8,31 +8,49 @@
     <script>
 
       $(document).ready(function(){
+
         var $body = $('body');
         $body.html('');
         
         var displayTweets = function(tweet) {
-          var $tweet = $('<div></div>');
-          var tweetTime = tweet.created_at.toTimeString().substr(0,8);  //Create timestamp
+          var uName = tweet.user
+          var uMsg = tweet.message
+          var uTime = tweet.created_at.toTimeString().substr(0,8);  //Create timestamp
 
-          $tweet.text('@' + tweet.user + ' (' + tweetTime + ')' + ': ' + tweet.message);
+          var $tweet = $('<div class="'+uName+'""></div>');
+
+          $tweet.html('@' + uName + '(' + uTime + ')' + ': ' + uMsg);
+          //$tweet.html('<a href="#">@' + uName + '</a> (' + uTime + ')' + ': ' + uMsg);
           $tweet.appendTo($body);
         };
 
-        var cycleTweets = function() {
-          var array = streams.home
+        var cycleTweets = function(array) {
           var index = array.length - 1;
           $body.text('');
           while(index >= 0){
-            var tweet = streams.home[index];
-            displayTweets(tweet);
+            displayTweets(array[index]);
             index -= 1;
           }
-          setTimeout(cycleTweets, 1000);
         }
-
-        cycleTweets();
+        // global for stopping interval
+        var cycle;
         
+        var showTweets = function(array){
+          cycleTweets(array);
+          cycle = setInterval(function() { cycleTweets(array); }, 1000);
+        };
+
+        $body.on('click','div', function(event){
+          event.stopPropagation();
+          event.preventDefault();
+          clearInterval(cycle);
+          $body.html('');
+          
+          var userName = $(this).attr('class');
+          showTweets(streams.users[userName]);
+        });
+
+        showTweets(streams.home);
       });
 
 
